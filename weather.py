@@ -5,7 +5,7 @@ import time
 
 city = "Skopje"
 unit = "metric"
-api_key = "09a3d48b5d9bbacf39092f134fde8f06"
+api_key = "your_api_key_here"
 url = f"https://api.openweathermap.org/data/2.5/forecast?q={city}&units={unit}&appid={api_key}"
 
 def fetch_data(url):
@@ -76,3 +76,5 @@ schedule.every(3).hours.do(suggestions, url)
 while True:
     schedule.run_pending()
     time.sleep(1)
+
+#not finished yet
