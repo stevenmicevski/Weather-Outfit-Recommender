@@ -1,7 +1,7 @@
-__pycache__/
-*.pyc
 weatherapp/
+__pycache__/
 .vscode/
-weather_data.json
 *.db
+*.json
+*.pyc
 
