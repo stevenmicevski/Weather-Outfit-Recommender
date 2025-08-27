@@ -20,14 +20,20 @@ A Python app that fetches 3-hour weather forecasts using the OpenWeatherMap API 
 - Sends **desktop notifications** with your weather and outfit advice
 - Automatic periodic reminders every 3 hours
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 8b74b86 (Added pictures to the README file)
 
 ---
 
 ## 🖼️ Screenshot
 
 ![Weather App Screenshot](screenshots/weather_app.png)
+<<<<<<< HEAD
 =======
 >>>>>>> 02a2845f843891721b1045895d459d8518f3f470
+=======
+>>>>>>> 8b74b86 (Added pictures to the README file)
 
 ---
 
