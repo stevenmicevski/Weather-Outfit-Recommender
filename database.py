@@ -1,6 +1,8 @@
 import sqlite3
 
+#DATABSE
 
+#creating the table with the needed values
 def create_table():
     connection = sqlite3.connect("weather_data.db")
     cursor = connection.cursor()
@@ -13,11 +15,13 @@ def create_table():
         humidity INT,
         condition TEXT,
         date TEXT
+        LIMIT 4
     )
     """)
     connection.commit()
     connection.close()
 
+#deleting the data in the table before every new fetch/insertion
 def delete_weather_data():
     connection = sqlite3.connect("weather_data.db")
     cursor = connection.cursor()
@@ -26,6 +30,7 @@ def delete_weather_data():
     connection.commit()
     connection.close()
 
+#inserting the fetched data into the table
 def insert_weather_data(temperature, feelslike, rain, humidity, condition, datetime):
     connection = sqlite3.connect("weather_data.db")
     cursor = connection.cursor()
@@ -35,15 +40,16 @@ def insert_weather_data(temperature, feelslike, rain, humidity, condition, datet
     connection.commit()
     connection.close()
 
+#showing the data from the first 5 rows in the table
 def show_weather_data():
     connection = sqlite3.connect("weather_data.db")
     cursor = connection.cursor()
     cursor.execute("""
     SELECT * FROM WEATHER 
         ORDER BY date ASC 
-        LIMIT 1""")
+        LIMIT 5""")
     rows = cursor.fetchall()
     connection.close()
-    return rows[0]
+    return rows
 
 

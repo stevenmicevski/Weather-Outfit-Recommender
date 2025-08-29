@@ -1,0 +1,64 @@
+<!DOCTYPE html> 
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Weather Outfit Recommender</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="page-title">
+        <h1>🌤️ Weather & Outfit Advice</h1>
+        <p>Get daily weather updates and outfit suggestions!</p>
+    </div>
+
+    <!-- Hour buttons -->
+    <div class="hour-buttons">
+        {% for hour, value in combined %}
+            <button onclick="showHour({{ loop.index0 }})">
+                {{ value['date'][8:10] }}/{{ value['date'][5:7] }} {{ value['date'][11:16] }}
+            </button>
+        {% endfor %}
+    </div>
+
+    <!-- Weather cards per hour -->
+    {% for hour, value in combined %}
+        <div id="hour-{{ loop.index0 }}" class="hour-block">
+            <div class="weather-card-container">
+                <div class="weather-card">
+                    <h3>Temperature</h3>
+                    <h4>{{ value["temp"]|safe }}</h4>
+                    <p>{{ hour["temperature"]|safe }}</p>
+                </div>
+                <div class="weather-card">
+                    <h3>Rain</h3>
+                    <h4>{{ value["rain"]|safe }}</h4>
+                    <p>{{ hour["rain"]|safe }}</p>
+                </div>
+                <div class="weather-card">
+                    <h3>Humidity</h3>
+                    <h4>{{ value["humidity"]|safe }}</h4>
+                    <p>{{ hour["humidity"]|safe }}</p>
+                </div>
+                <div class="weather-card">
+                    <h3>Condition</h3>
+                    <h4>{{ value["condition"]|safe }}</h4>
+                    <p>{{ hour["condition"]|safe }}</p>
+                </div>
+                <div class="weather-card">
+                    <h3>Advice</h3>
+                    <p>{{ hour["advice"]|safe }}</p>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+    <script>
+        function showHour(index) {
+            const blocks = document.querySelectorAll('.hour-block');
+            blocks.forEach((block, i) => {
+                block.style.display = (i === index) ? 'block' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>
