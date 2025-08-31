@@ -1,116 +1,190 @@
+/* =======================
+   Body & Background
+   ======================= */
 body {
-    font-family: 'Arial', sans-serif;
-    background: linear-gradient(to right, #6dd5fa, #ffffff);
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
     margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #a2d9ff, #fff9b0, #cceeff, #fff6a0);
+    background-size: 400% 400%;
+    animation: gradientAnimation 30s ease infinite;
+    color: #222;
 }
 
-.weather-card {
-    background-color: rgba(255, 255, 255, 0.9);
-    padding: 20px;
-    margin-right: 10px;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    max-width: 600px;
-    width: 200px;
-    height: 200px;
-    text-align: center;
-    transition: transform 0.3s, box-shadow 0.3s;
+@keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
-.weather-card:hover {
-    transform: scale(1.05);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-}
-
-.weather-card p {
-    font-size: 17px;
-    line-height: 1.5;
-}
-
-.weather-card h3 {
-    font-size: 20px;
-    margin-bottom: 0%;
-}
-
-.weather-card h4 {
-    font-size: 18px;
-    margin-top: 0%;
-}
-
-.weather-card-container {
-    display: flex;
-    flex-direction: row;
-    padding: 5px;
-    margin-bottom: 20px;
-}
-
-.weather-card-recommender {
-    background-color: rgba(255, 255, 255, 0.9);
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    max-width: 600px;
-    width: 300px;
-    height: 150px;
-    text-align: center;
-    transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.weather-card-recommender h3 {
-    font-size: 20px;
-}
-
-.weather-card-recommender p {
-    font-size: 17px;
-}
-
-.weather-card-recommender:hover {
-    transform: scale(1.05);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-}
-
+/* =======================
+   Title & Subtitle
+   ======================= */
 .page-title {
     text-align: center;
-    margin-top: 0px;
-    margin-bottom: 30px;
-    font-family: 'Arial', sans-serif;
+    margin: 50px 0 0 0;
 }
 
 .page-title h1 {
-    font-size: 2.5rem;
-    color: #333;
-    margin-bottom: 0%;
+    font-size: 3.5rem;
+    font-weight: 900;
+    letter-spacing: 1.2px;
+    line-height: 1.1;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, #003366, #09539e);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0;
 }
 
 .page-title p {
     font-size: 1.2rem;
-    color: #555;
-    margin-top: 0%;
+    color: #336699;
+    font-weight: 400;
+    margin: 0 0 100px 0;
+    line-height: 1.1;
+    letter-spacing: 0.5px;
 }
 
-/* New: hide all hour blocks by default */
-.hour-block {
+/* =======================
+   Weather Cards
+   ======================= */
+.weather-card-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin: 10px 0 50px 0;
+}
+
+.weather-card-container-container {
     display: none;
 }
 
-/* Optional: style buttons */
-.hour-buttons button {
-    margin: 5px;
-    padding: 10px 15px;
-    border-radius: 8px;
-    border: none;
-    background-color: #ffffffcc;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.2s;
+.weather-card {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(16px);
+    padding: 22px;
+    border-radius: 24px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+    width: 220px;
+    height: 270px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.35s ease;
+    overflow: hidden;
 }
 
-.hour-buttons button:hover {
-    background-color: #ffffff;
+.weather-card:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 18px 40px rgba(0,0,0,0.12);
+    background: rgba(255, 255, 255, 0.25);
 }
+
+.weather-card img {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 10px;
+    transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.weather-card:hover img {
+    transform: scale(1.1);
+    filter: brightness(1.2);
+}
+
+/* =======================
+   Hour & Unit Buttons
+   ======================= */
+.hour-button, .unit-button {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.hour-button button, .unit-button button {
+    margin: 0;
+    padding: 12px 22px;
+    border-radius: 20px;
+    border: none;
+    background: linear-gradient(145deg, #87cefa, #2fcbff);
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    transition: all 0.25s ease;
+    box-shadow: 0 5px 16px rgba(0,0,0,0.06);
+}
+
+.hour-button button:hover, .unit-button button:hover {
+    background: linear-gradient(145deg, #00bfff, #1e90ff);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+
+.hour-button button.active, .unit-button button.active {
+    background: linear-gradient(145deg, #ffdd6e, #fff176);
+    color: #004080;
+    transform: scale(1.08);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+}
+
+/* =======================
+   Text Badges
+   ======================= */
+.text-badge {
+    display: inline-block;
+    border-radius: 14px;
+    padding: 6px 14px;
+    margin: 1px;
+    font-size: 0.95em;
+    font-weight: 500;
+    box-shadow: 1px 1px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid rgba(0,0,0,0.08);
+    background-color: #fff9b0; 
+    color: #004080;
+}
+
+.weather-card:hover .text-badge {
+    transform: scale(1.05);
+    box-shadow: 2px 2px 14px rgba(0,0,0,0.12);
+}
+
+/* =======================
+   Text Badge Colors
+   ======================= */
+.text-badge.freezing { background-color: #cceeff; color: #004080; }
+.text-badge.cold { background-color: #a2d9ff; color: #0059b3; }
+.text-badge.mild { background-color: #fff9b0; color: #b37f00; }
+.text-badge.warm { background-color: #fff380; color: #996600; }
+.text-badge.hot { background-color: #ffe066; color: #cc6600; }
+.text-badge.heat { background-color: #ffd633; color: #993300; }
+
+.text-badge.rain-none { background-color: #cceeff; color: #004080; } 
+.text-badge.rain-light { background-color: #a2d9ff; color: #0059b3; } 
+.text-badge.rain-moderate { background-color: #fff9b0; color: #b37f00; } 
+.text-badge.rain-heavy { background-color: #fff380; color: #996600; } 
+.text-badge.rain-extreme { background-color: #ffe066; color: #cc6600; }
+
+.text-badge.humidity-low { background-color: #fff9b0; color: #b37f00; }
+.text-badge.humidity-comfort { background-color: #cceeff; color: #004080; }
+.text-badge.humidity-slight { background-color: #fff9b0; color: #b37f00; }
+.text-badge.humidity-humid { background-color: #a2d9ff; color: #0059b3; }  
+.text-badge.humidity-extreme { background-color: #ffe066; color: #cc6600; }
+
+.text-badge.clear { background-color: #fff9b0; color: #b37f00; }
+.text-badge.cloudy { background-color: #cceeff; color: #004080; }
+.text-badge.rainy { background-color: #a2d9ff; color: #0059b3; }
+.text-badge.thunder { background-color: #ffd633; color: #993300; }
+.text-badge.snow { background-color: #cceeff; color: #004080; }
+.text-badge.other { background-color: #fff9b0; color: #b37f00; }

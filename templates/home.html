@@ -1,64 +1,180 @@
 <!DOCTYPE html> 
 <html>
+
 <head>
     <meta charset="UTF-8">
     <title>Weather Outfit Recommender</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
+
 <body>
+
     <div class="page-title">
         <h1>🌤️ Weather & Outfit Advice</h1>
-        <p>Get daily weather updates and outfit suggestions!</p>
+        <p>“Stay stylish no matter what the forecast says.”</p>
     </div>
 
-    <!-- Hour buttons -->
-    <div class="hour-buttons">
-        {% for hour, value in combined %}
-            <button onclick="showHour({{ loop.index0 }})">
-                {{ value['date'][8:10] }}/{{ value['date'][5:7] }} {{ value['date'][11:16] }}
+    <!-- Creating hour buttons in a loop. 
+    Each button has its own index
+    when clicked it calls the script/function we made at the bottom, show cards().
+    when clicked the html/page runs this script with that number as an argument (the number of the button).
+    -->
+    <div class="hour-button">
+        {% for i in range(combined|length) %}
+            <button onclick="show_cards({{ i }})">
+                {{ combined[i][1]['date'][8:10] }}/{{ combined[i][1]['date'][5:7] }} {{ combined[i][1]['time'][:5] + combined[i][1]['time'][8:10]}}
             </button>
         {% endfor %}
     </div>
 
-    <!-- Weather cards per hour -->
-    {% for hour, value in combined %}
-        <div id="hour-{{ loop.index0 }}" class="hour-block">
-            <div class="weather-card-container">
-                <div class="weather-card">
-                    <h3>Temperature</h3>
-                    <h4>{{ value["temp"]|safe }}</h4>
-                    <p>{{ hour["temperature"]|safe }}</p>
-                </div>
-                <div class="weather-card">
-                    <h3>Rain</h3>
-                    <h4>{{ value["rain"]|safe }}</h4>
-                    <p>{{ hour["rain"]|safe }}</p>
-                </div>
-                <div class="weather-card">
-                    <h3>Humidity</h3>
-                    <h4>{{ value["humidity"]|safe }}</h4>
-                    <p>{{ hour["humidity"]|safe }}</p>
-                </div>
-                <div class="weather-card">
-                    <h3>Condition</h3>
-                    <h4>{{ value["condition"]|safe }}</h4>
-                    <p>{{ hour["condition"]|safe }}</p>
-                </div>
-                <div class="weather-card">
-                    <h3>Advice</h3>
-                    <p>{{ hour["advice"]|safe }}</p>
-                </div>
-            </div>
-        </div>
-    {% endfor %}
 
+    <!-- Creating weather cards for the whole day in a loop -->
+{% for suggestion, value in combined %}
+    <div class="weather-card-container-container">
+
+        <div class="weather-card-container">
+
+            <!-- Temperature Card -->
+            <div class="weather-card temperature-card">
+                <h3>Temperature</h3>
+                <img src="https://img.icons8.com/ios/50/000000/thermometer.png" alt="Temperature">
+                <h4 class="temperature-value" data-celsius="{{ value['temp'] | safe }}">{{ value["temp"]|safe }}°C</h4>
+                <p>{{ suggestion["temperature"]|safe }}</p>
+            </div>
+
+            <!-- Rain Card -->
+            <div class="weather-card">
+                <h3>Rain</h3>
+                <img src="https://img.icons8.com/ios/50/000000/rain.png" alt="Rain">
+                <h4>{{ value["rain"]|safe }}</h4>
+                <p>{{ suggestion["rain"]|safe }}</p>
+            </div>
+
+            <!-- Humidity Card -->
+            <div class="weather-card">
+                <h3>Humidity</h3>
+                <img src="https://img.icons8.com/ios/50/000000/water.png" alt="Humidity">
+                <h4>{{ value["humidity"]|safe }}</h4>
+                <p>{{ suggestion["humidity"]|safe }}</p>
+            </div>
+
+            <!-- Condition Card -->
+            <div class="weather-card">
+                <h3>Condition</h3>
+                {% if value["condition"] == "Clear" %}
+                    <img src="https://img.icons8.com/ios/50/000000/sun.png" alt="Clear">
+                {% elif value["condition"] == "Clouds" %}
+                    <img src="https://img.icons8.com/ios/50/000000/cloud.png" alt="Clouds">
+                {% elif value["condition"] == "Rain" %}
+                    <img src="https://img.icons8.com/ios/50/000000/rain.png" alt="Rain">
+                {% else %}
+                    <img src="https://img.icons8.com/ios/50/000000/cloud--v1.png" alt="Other">
+                {% endif %}
+                <h4>{{ value["condition"]|safe }}</h4>
+                <p>{{ suggestion["condition"]|safe }}</p>
+            </div>
+
+            <!-- Advice Card -->
+            <div class="weather-card">
+                <h3>Advice</h3>
+                <img src="https://img.icons8.com/ios/50/000000/light-on.png" alt="Advice">
+                <p>{{ suggestion["advice"]|safe }}</p>
+            </div>
+
+        </div>
+
+    </div>
+{% endfor %}
+
+<!-- Creating buttons for unit toggling -->
+    <div class="unit-button">
+        <button onclick="change_unit('C', this)">
+                °C
+        </button>
+        <button onclick="change_unit('F', this)">
+                °F
+        </button>
+    </div>
+
+
+
+<!--    
+Declares a named function show_hour so you can call it from an HTML.
+It takes one parameter, which is the weather-card you want to show.
+Uses the DOM API (The DOM (Document Object Model) is basically a tree structure of your HTML page) to select 
+all elements in the page with the class .weather-card-container-container.
+Returns a static NodeList, array-like list of elements in document (top to bottom, left to right in your HTML source) 
+order.
+(e.g. [
+  <div class="hour-block">First</div>,
+  <div class="hour-block">Second</div>,
+  <div class="hour-block">Third</div>
+])
+Iterates over every element in that blocks NodeList.
+block = the actual element (e.g. <div class=".weather-card-container-container">First</div>).
+i = the position (index) of that element in the list.
+Is the current block’s position (i) the same as the one I want to show (index)?
+If it is, set the style.display of that container to 'block', show it.
+If not, set it to 'none', dont shwo it.
+-->
     <script>
-        function showHour(index) {
-            const blocks = document.querySelectorAll('.hour-block');
-            blocks.forEach((block, i) => {
-                block.style.display = (i === index) ? 'block' : 'none';
-            });
+        function show_cards(index) {
+            const blocks = document.querySelectorAll('.weather-card-container-container');
+            for (let i = 0; i < blocks.length; i++) {
+                if (i === index) {
+                    blocks[i].style.display = 'block';
+                } else {
+                    blocks[i].style.display = 'none';
+                }
+            }
+
+            const buttons = document.querySelectorAll('.hour-button button')
+            for (let i = 0; i < buttons.length; i++) {
+                if (i === index) {
+                    buttons[i].classList.add('active');
+                } else {
+                    buttons[i].classList.remove('active');
+                }
+            }
         }
     </script>
+
+<!-- 
+Declares a named function change_unit so you can call it from an HTML.
+Takes two parameters, one is the unit we want to change it to and the other is the button thats clicked.
+Each of the two buttos when clicked calls this function with different unit.
+It selects all elements in the page with the class .temperature-value.
+Gets the value with element.dataset.celsius via data-celsius in the HTML.
+If the fucntion is called with C, it changes the text of that element with `${celsius}°C`, via textContent.
+If the fucntion is called with F, it changes the text of that element with `${fahrenheit}°C`, via textContent.
+
+It selects all elements in the page with the class .unit-button button.
+It removes the 'active' class to every other button, makes it inactive.
+It sets the class to 'active' on the button thats clicked.
+-->
+    
+    <script>
+        function change_unit(unit, clickedBtn) {
+            const tempelements = document.querySelectorAll(".temperature-value");
+            for (let i = 0; i < tempelements.length; i++) {
+                const element = tempelements[i];
+                const celsius = parseFloat(element.dataset.celsius);
+                if (unit === "C") {
+                    element.textContent = `${celsius}°C`;
+                } else {
+                    const fahrenheit = Math.round((celsius * 9/5) + 32);
+                    element.textContent = `${fahrenheit}°F`;
+                }
+            }
+
+            const buttons = document.querySelectorAll(".unit-button button");
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].classList.remove("active");
+            }
+            clickedBtn.classList.add("active");
+        }
+    </script>
+
 </body>
+
 </html>

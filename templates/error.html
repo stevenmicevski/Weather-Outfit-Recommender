@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - Weather App</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #a2d9ff, #fff9b0, #cceeff, #fff6a0);
+            background-size: 400% 400%;
+            animation: gradientAnimation 30s ease infinite;
+            color: #222;
+            text-align: center;
+        }
+
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(90deg, #003366, #09539e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 1.2rem;
+            color: #004080;
+            margin-bottom: 40px;
+        }
+
+        a.button {
+            text-decoration: none;
+            padding: 12px 28px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            background: linear-gradient(145deg, #ffeb3b, #00c8ff); /* yellow → turquoise */
+            border-radius: 20px;
+            box-shadow: 0 5px 16px rgba(0,0,0,0.06);
+            transition: all 0.25s ease;
+        }
+
+        a.button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        }
+    </style>
+</head>
+<body>
+    <h1>Oops!</h1>
+    <p>{{ message }}</p>
+    <a href="{{ url_for('home') }}" class="button">Try Again</a>
+</body>
+</html>

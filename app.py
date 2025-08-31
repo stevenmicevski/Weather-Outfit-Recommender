@@ -1,31 +1,34 @@
-from flask import Flask, render_template
+from flask import Flask, redirect, render_template, url_for
 import weather
 from datetime import datetime
 
-#creating a Flask app
+# Create Flask app
 app = Flask(__name__)
 
-#making a route for the app on the home page (/)
+# Home page route
 @app.route("/")
 def home():
-    # weather.fetch_data()
-    # weather.store_data()
-    hourly_suggestions = weather.give_suggestions()
-    daily_values = weather.get_values()
 
-    # Combine hourly suggestions with the corresponding datetime
+    data = weather.fetch_data_from_api()
+    if not data or "list" not in data:
+        return redirect("/error")
+
+    weather.store_data_in_db()
+    suggestions = weather.get_all_suggestions()
+    values = weather.get_values_from_data()
+
+    # Combine the suggestions and values so we can loop trough them at once and display them in the HTML
     combined = []
-    for hour, value in zip(hourly_suggestions, daily_values):
-        hour_copy = hour.copy()
-        date_str = value.get("date")
-        if date_str:
-            dt = datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
-            hour_copy["time"] = dt.strftime("%H:%M")
-        else:
-            hour_copy["time"] = "N/A"
-        combined.append((hour_copy, value))
+    for sug, val in zip(suggestions, values):
+        combined.append((sug, val))
 
     return render_template("home.html", combined=combined)
+
+# Error page route
+@app.route("/error")
+def error_page():
+    message = "We couldn't fetch the weather data. Please try again later."
+    return render_template("error.html", message=message)
 
 if __name__ == "__main__":
     app.run(debug=True)

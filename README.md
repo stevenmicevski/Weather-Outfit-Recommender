@@ -1,6 +1,6 @@
 # 🌦️ Weather Outfit Recommender
 
-A Python app that fetches 3-hour weather forecasts using the OpenWeatherMap API and recommends outfits and precautions based on **temperature**, **rain**, and **humidity** levels. With **desktop notifications** on Linux.
+A Python app that fetches 3-hour weather forecasts using the OpenWeatherMap API and recommends outfits and precautions based on **temperature**, **rain**, and **humidity** levels. With **desktop notifications** on Linux and **web interface**.
 
 ---
 
@@ -19,22 +19,31 @@ A Python app that fetches 3-hour weather forecasts using the OpenWeatherMap API 
   - When to stay indoors due to high heat or humidity
 - Sends **desktop notifications** with your weather and outfit advice
 - Automatic periodic reminders every 3 hours
+- **Web interface** for browsing hourly forecasts, outfit suggestions, and weather data
+- **Interactive weather cards** with clickable hourly buttons
+- **Unit toggling** between Celsius and Fahrenheit on the web app
+- **Error handling page** if weather data fails to fetch
 
 ---
 
 ## 🖼️ Screenshots
 
 ![Weather App Screenshot](screenshots/weather_app.png)
+![Weather App Screenshot](screenshots/weather_app_home.png)
+![Weather App Screenshot](screenshots/weather_app_home_2.png)
+![Weather App Screenshot](screenshots/weather_app_error.png)
 
 ---
 
 ## 🛠️ Tech Stack
 
 - Python
-- `requests` – fetch weather data from API
-- `json` – read/write weather data
-- `sqlite3` (or your preferred database) – store weather records
-- `plyer/notification` – trigger desktop notifications on Linux
+- JavaScript
+- Flask
+- `requests`
+- `json`
+- `sqlite3`
+- `plyer/notification`
 - OpenWeatherMap API
 
 ---
@@ -64,6 +73,5 @@ python weather.py
 
 ## 💡 Coming Soon
 
-- A web app version to check weather and outfit suggestions from any device
-- Push notifications and alerts for extreme weather conditions
+- Geolocation support
 - Historical weather analytics and trends

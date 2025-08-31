@@ -1,8 +1,6 @@
 import sqlite3
 
-#DATABSE
-
-#creating the table with the needed values
+# Creating the table
 def create_table():
     connection = sqlite3.connect("weather_data.db")
     cursor = connection.cursor()
@@ -14,14 +12,23 @@ def create_table():
         rain INT DEFAULT 0,
         humidity INT,
         condition TEXT,
-        date TEXT
-        LIMIT 4
+        date TEXT,
+        time TEXT
     )
     """)
     connection.commit()
     connection.close()
 
-#deleting the data in the table before every new fetch/insertion
+# Delete the table
+def delete_table():
+    connection = sqlite3.connect("weather_data.db")
+    cursor = connection.cursor()
+    cursor.execute("DROP TABLE IF EXISTS WEATHER")
+    connection.commit()
+    connection.close()
+    print("Table dropped successfully.")
+
+# Delete the data in the table
 def delete_weather_data():
     connection = sqlite3.connect("weather_data.db")
     cursor = connection.cursor()
@@ -30,17 +37,17 @@ def delete_weather_data():
     connection.commit()
     connection.close()
 
-#inserting the fetched data into the table
-def insert_weather_data(temperature, feelslike, rain, humidity, condition, datetime):
+# Insert the data into the table
+def insert_weather_data(temperature, feelslike, rain, humidity, condition, date, time):
     connection = sqlite3.connect("weather_data.db")
     cursor = connection.cursor()
     cursor.execute("""
-    INSERT INTO WEATHER (temperature, feels, rain, humidity, condition, date)
-    VALUES (?, ?, ?, ?, ?, ?)""", (temperature, feelslike, rain, humidity, condition, datetime))
+    INSERT INTO WEATHER (temperature, feels, rain, humidity, condition, date, time)
+    VALUES (?, ?, ?, ?, ?, ?, ?)""", (temperature, feelslike, rain, humidity, condition, date, time))
     connection.commit()
     connection.close()
 
-#showing the data from the first 5 rows in the table
+# Showing the data from the table
 def show_weather_data():
     connection = sqlite3.connect("weather_data.db")
     cursor = connection.cursor()

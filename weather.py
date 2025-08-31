@@ -5,19 +5,29 @@ import database
 from plyer import notification
 import time
 
-city = ""
+city = "your_city"
 unit = "metric"
-api_key = ""
+api_key = "your_API_key"
 url = f"https://api.openweathermap.org/data/2.5/forecast?q={city}&units={unit}&appid={api_key}"
 
-def fetch_data():
+
+def fetch_data_from_api():
+    """
+    Fetch weather forecast from OpenWeatherMap API
+    and store it in 'weather_data.json'.
+    Returns JSON data as a dictionary.
+    """
     response = requests.get(url)
     data = response.json()
     with open("weather_data.json", "w") as file:
         json.dump(data, file, indent=4)
+    return data
 
 
-def store_data():
+def store_data_in_db():
+    """
+    Read weather data from 'weather_data.json' and store it in the database.
+    """
     with open("weather_data.json", "r") as file:
         data = json.load(file)
 
@@ -27,163 +37,191 @@ def store_data():
     for entry in data["list"]:
         temperature = entry["main"]["temp"]
         feelslike = entry["main"]["feels_like"]
-        rain = 0
-        if "rain" in entry:
-            rain = entry["rain"]["3h"]
+        rain = entry.get("rain", {}).get("3h", 0)
         humidity = entry["main"]["humidity"]
         condition = entry["weather"][0]["main"]
-        datetime = entry["dt_txt"]
-        database.insert_weather_data(temperature, feelslike, rain, humidity, condition, datetime)
+        date, time_str = entry["dt_txt"].split()
+        database.insert_weather_data(temperature, feelslike, rain, humidity, condition, date, time_str)
 
-def get_data():
-    rows = database.show_weather_data()
-    return rows
 
-def get_values():
-    rows = get_data()
-    daily_values = []
+def get_data_from_db():
+    """Retrieve all rows from the database."""
+    return database.show_weather_data()
+
+
+def get_values_from_data():
+    """
+    Convert database rows into a list of dictionaries with all the values.
+    """
+    rows = get_data_from_db()
+    all_daily_values = []
+
     for r in rows:
-        values = {}
-        values["temp"] = str(round(r[1])) + " °C"
-        values["feels"] = str(round(r[2])) + " °C"
-        values["rain"] = str(r[3]) + " mm"
-        values["humidity"] = str(r[4]) + " %"
-        values["condition"] = str(r[5])
-        values["date"] = r[6]  # <-- Add this line to include the datetime
-        daily_values.append(values)
+        values = {
+            "temp": str(round(r[1])),
+            "feels": str(round(r[2])) + "°C",
+            "humidity": f"{r[4]} %",
+            "condition": str(r[5]),
+            "date": r[6],
+            "time": r[7] if r[7] < '12:00:00' else r[7] + "PM",
+        }
 
-    return daily_values
-
-    
-
-def give_suggestions():
-    row = get_data()
-    day_suggestions = []
-    for r in row:
-        temp = r[1]
-        feels = round(r[2])
         rain = r[3]
-        humidity = r[4]
+        if rain == 0:
+            values["rain"] = '0%'
+        elif rain < 1:
+            values["rain"] = '20%'
+        elif rain < 2:
+            values["rain"] = '40%'
+        elif rain < 5:
+            values["rain"] = '60%'
+        elif rain < 10:
+            values["rain"] = '80%'
+        else:
+            values["rain"] = '100%'
+
+        all_daily_values.append(values)
+
+    return all_daily_values
+
+
+def get_temperature_suggestions(temp, feels):
+    """Return temperature suggestion."""
+    if temp < 0:
+        return f"<span class='text-badge freezing'>❄️ It’s freezing outside — Feels like {feels}°C.</span>"
+    elif temp < 10:
+        return f"<span class='text-badge cold'>🧥 Quite chilly — Feels like {feels}°C.</span>"
+    elif temp < 20:
+        return f"<span class='text-badge mild'>🌤️ Mild weather — Feels like {feels}°C.</span>"
+    elif temp < 30:
+        return f"<span class='text-badge warm'>😊 Comfortable and warm — Feels like {feels}°C.</span>"
+    elif temp < 40:
+        return f"<span class='text-badge hot'>☀️ It’s hot outside — Feels like {feels}°C.</span>"
+    else:
+        return f"<span class='text-badge heat'>🔥 Extreme heat alert — Feels like {feels}°C. Stay safe!</span>"
+
+
+def get_rain_suggestions(rain):
+    """Return rain suggestion."""
+    if rain > 0:
+        if rain < 0.1:
+            return "<span class='text-badge rain-none'>🌤️ Almost no rain expected. You’re good to go!</span>"
+        elif rain < 1.0:
+            return "<span class='text-badge rain-light'>🌦️ Light rain possible. Bring a small umbrella — just in case.</span>"
+        elif rain < 3.0:
+            return "<span class='text-badge rain-moderate'>🌧️ Moderate rain ahead. Don’t forget your umbrella or raincoat!</span>"
+        elif rain < 10.0:
+            return "<span class='text-badge rain-heavy'>🌧️🌧️ Heavy rain expected! Waterproof gear recommended.</span>"
+        else:
+            return "<span class='text-badge rain-extreme'>⛈️ Torrential rain alert! Stay safe and dry — avoid unnecessary trips outdoors.</span>"
+    return "<span class='text-badge rain-none'>☀️ No rain in the forecast — enjoy the sunshine!</span>"
+
+
+def get_humidity_suggestions(humidity):
+    """Return humidity suggestion."""
+    if humidity < 30:
+        return "<span class='text-badge humidity-low'>🌵 Very dry air — stay hydrated.</span>"
+    elif humidity < 50:
+        return "<span class='text-badge humidity-comfort'>🌤️ Comfortable humidity — enjoy the fresh air!</span>"
+    elif humidity < 70:
+        return "<span class='text-badge humidity-slight'>🌫️ Slightly humid — dress in breathable clothes.</span>"
+    elif humidity < 85:
+        return "<span class='text-badge humidity-humid'>💦 It's humid today — feels warmer than it is.</span>"
+    else:
+        return "<span class='text-badge humidity-extreme'>🥵 Very high humidity! Stay indoors if possible.</span>"
+
+
+def get_condition_suggestions(condition):
+    """Return condition suggestion."""
+    if condition in ["Clear", "Sunny"]:
+        return "<span class='text-badge clear'>☀️ Clear skies today — perfect for outdoor activities!</span>"
+    elif condition in ["Clouds", "Cloudy", "Overcast"]:
+        return "<span class='text-badge cloudy'>☁️ Cloudy skies — might be a bit gloomy but still fine for outdoor activities.</span>"
+    elif condition in ["Rain", "Drizzle"]:
+        return "<span class='text-badge rainy'>🌧️ Rainy weather — bring an umbrella or wear a raincoat!</span>"
+    elif condition in ["Thunderstorm"]:
+        return "<span class='text-badge thunder'>⛈️ Thunderstorm alert — stay indoors if possible and stay safe!</span>"
+    elif condition in ["Snow"]:
+        return "<span class='text-badge snow'>❄️ Snowy conditions — dress warmly and be careful on the roads.</span>"
+    else:
+        return f"<span class='text-badge other'>🌤️ Current condition: {condition} — dress appropriately.</span>"
+
+
+def get_advice_suggestions(feels, rain, humidity, condition):
+    """Return a list of outfit recommendations based on all weather attributes."""
+    advice = []
+
+    # Tops
+    if feels < 0:
+        advice += ["🧥 Heavy winter coat", "🧣 Layers & scarf", "🧤 Gloves", "🧢 Hat"]
+    elif feels < 10:
+        advice += ["🧥 Warm jacket", "🧣 Sweater layers", "🧤 Scarf"]
+    elif feels < 20:
+        advice.append("👕 Light jacket or long-sleeve shirt")
+    elif feels < 30:
+        advice.append("👕 T-shirt, breathable top")
+    else:
+        advice.append("👕 Light airy top (stay hydrated 💧)")
+
+    # Bottoms
+    if feels < 0:
+        advice += ["👖 Thick pants", "🩳 Thermal leggings"]
+    elif feels < 10:
+        advice.append("👖 Warm pants or jeans")
+    elif feels < 20:
+        advice.append("👖 Pants or skirt 👗 with tights")
+    elif feels < 30:
+        advice.append("👖 Light pants or shorts")
+    else:
+        advice.append("🩳 Shorts, skirt, or breathable trousers")
+
+    # Rain
+    if rain >= 0.1:
+        advice.append("☂️ Umbrella or raincoat 🌂")
+
+    # Humidity
+    if humidity >= 70 and feels >= 20:
+        advice.append("💦 Light fabrics for humid weather")
+
+    # Condition
+    if condition == "Snow":
+        advice.append("🥾 Waterproof boots & warm layers ❄️")
+    if condition in ["Clear", "Sunny"] and feels >= 30:
+        advice.append("🧴 Sunscreen, hat 🧢, sunglasses 🕶️")
+
+    # Wrap each item in a "badge" style for HTML
+    return " ".join([f"<span class='text-badge'>{item}</span>" for item in advice])
+
+
+def get_all_suggestions():
+    """Combine all attribute suggestions into a list of dictionaries for each row."""
+    rows = get_data_from_db()
+    all_daily_suggestions = []
+
+    for r in rows:
+        temp = r[1] 
+        feels = round(r[2]) 
+        rain = r[3] 
+        humidity = r[4] 
         condition = str(r[5])
-        
-        messages = {}
+        messages = {
+            "temperature": get_temperature_suggestions(temp, feels),
+            "rain": get_rain_suggestions(rain),
+            "humidity": get_humidity_suggestions(humidity),
+            "condition": get_condition_suggestions(condition),
+            "advice": get_advice_suggestions(feels, rain, humidity, condition)
+        }
+        all_daily_suggestions.append(messages)
 
-        tempmessage = ""
-        if temp < 0:
-            tempmessage += f"\n❄️ It’s freezing outside! Feels like {feels}°C."
-        elif 0 <= temp < 10:
-            tempmessage += f"\n🧥 Quite chilly. Feels like {feels}°C."
-        elif 10 <= temp < 20:
-            tempmessage += f"\n🌤️ Mild weather. Feels like {feels}°C."
-        elif 20 <= temp < 30:
-            tempmessage += f"\n😊 Comfortable and warm. Feels like {feels}°C."
-        elif 30 <= temp < 40:
-            tempmessage += f"\n☀️ It’s hot outside! Feels like {feels}°C."
-        else:
-            tempmessage += f"\n🔥 Extreme heat alert! Stay indoors if possible, wear lightweight clothes, drink plenty of water 💦, and avoid strenuous activities 🛑. Feels like {feels}°C."
-        messages ["temperature"] = tempmessage
-
-        rainmessage = ""
-        if rain > 0:
-            if rain < 0.1:
-                rainmessage += f"\n🌤️ Almost no rain expected. You’re good to go!"
-            elif 0.1 <= rain < 1.0:
-                rainmessage += f"\n🌦️ Light rain possible. Bring a small umbrella — just in case."
-            elif 1.0 <= rain < 3.0:
-                rainmessage += f"\n🌧️ Moderate rain ahead. Don’t forget your umbrella or raincoat!"
-            elif 3.0 <= rain < 10.0:
-                rainmessage += f"\n🌧️🌧️ Heavy rain expected! Waterproof gear recommended."
-            else:
-                rainmessage += f"\n⛈️ Torrential rain alert! Stay safe and dry — avoid unnecessary trips outdoors."
-        else:
-            rainmessage += "\n☀️ No rain in the forecast — enjoy the sunshine!"
-        messages ["rain"] = rainmessage
+    return all_daily_suggestions
 
 
-        hummessage = ""
-        if humidity < 30:
-            hummessage += f"\n🌵 Very dry air today — stay hydrated, use lip balm, and maybe a humidifier indoors."
-        elif 30 <= humidity < 50:
-            hummessage += f"\n🌤️ Comfortable humidity — enjoy the fresh air!"
-        elif 50 <= humidity < 70:
-            hummessage += f"\n🌫️ Slightly humid today — you might feel a little sticky, so dress in breathable clothes."
-        elif 70 <= humidity < 85:
-            hummessage += f"\n💦 It's humid today — feels warmer than it is. Stay cool, wear light clothes, and drink plenty of water."
-        else:
-            hummessage += f"\n🥵 Very high humidity! — the air is thick and heavy. Stay indoors if possible, avoid intense activity, and keep hydrated."
-        messages ["humidity"] = hummessage
+# Extra function for sending weather notifications on Desktop:
 
-        condmessage = ""
-        if condition in ["Clear", "Sunny"]:
-            condmessage += "\n☀️ Clear skies today — perfect for outdoor activities!"
-        elif condition in ["Clouds", "Cloudy", "Overcast"]:
-            condmessage += "\n☁️ Cloudy skies — might be a bit gloomy but still fine for outdoor activities."
-        elif condition in ["Rain", "Drizzle"]:
-            condmessage += "\n🌧️ Rainy weather — bring an umbrella or wear a raincoat!"
-        elif condition in ["Thunderstorm"]:
-            condmessage += "\n⛈️ Thunderstorm alert — stay indoors if possible and stay safe!"
-        elif condition in ["Snow"]:
-            condmessage += "\n❄️ Snowy conditions — dress warmly and be careful on the roads."
-        else:
-            condmessage += f"\n🌤️ Current condition: {condition} — dress appropriately."
-        messages ["condition"] = condmessage
+# def send_notification_on_desktop(): 
+    # notification.notify(title="🌤️ Weather & Outfit Advice", message=give_suggestions()) 
 
-        wear_advice = ""
-        if feels < 0:
-            wear_advice += "Heavy winter coat 🧥, layers 🧣, gloves 🧤, hat 🧢 <br>"
-        elif 0 <= feels < 10:
-            wear_advice += "Warm jacket 🧥, sweater layers 🧣, scarf 🧤 <br>"
-        elif 10 <= feels < 20:
-            wear_advice += "Light jacket 🧥 or long-sleeve shirt 👕 <br>"
-        elif 20 <= feels < 30:
-            wear_advice += "T-shirt 👕, breathable top 👚 <br>"
-        else:
-            wear_advice += "Light, airy top 👕, stay hydrated 💧 <br>"
-
-        if feels < 0:
-            wear_advice += "Thick pants 👖, thermal leggings 🩳 <br>"
-        elif 0 <= feels < 10:
-            wear_advice += "Warm pants 👖, maybe jeans 🩳 <br>"
-        elif 10 <= feels < 20:
-            wear_advice += "Pants 👖 or skirt 👗 with tights <br>"
-        elif 20 <= feels < 30:
-            wear_advice += "Light pants 👖, shorts 🩳 optional <br>"
-        else:
-            wear_advice += "Shorts 🩳, skirt 👗, or breathable trousers 👖 <br>"
-
-        if rain >= 0.1:
-            wear_advice += " — and take an umbrella ☂️ or raincoat 🌂"
-
-        if humidity >= 70 and feels >= 20:
-            wear_advice += " — light fabrics recommended due to humidity 💦"
-
-        if condition in ["Snow"]:
-            wear_advice += " — plus waterproof boots 🥾 and warm layers ❄️"
-
-        if condition in ["Clear", "Sunny"] and feels >= 30:
-            wear_advice += " — plus sunscreen 🧴, hat 🧢, and sunglasses 🕶️"
-        messages ["advice"] = wear_advice
-
-        day_suggestions.append(messages)
-
-    return day_suggestions
-
-
-
-# def send_notification_on_desktop():
-#     notification.notify(
-#         title="🌤️ Weather & Outfit Advice",
-#         message=give_suggestions()
-#     )
-
-# fetch_data()
-# store_data()
-
-# if __name__ == "__main__":
-#     while True:
-#         send_notification_on_desktop()
-#         time.sleep(3 * 60 * 60)
-
-print(get_data())
-print(give_suggestions())
-print(get_values())
+# if __name__ == "__main__": 
+    # while True: 
+        # send_notification_on_desktop() 
+        # time.sleep(3 * 60 * 60)
