@@ -57,7 +57,11 @@ git clone https://github.com/stevenmicevski/Weather-Outfit-Recommender.git
 cd Weather-Outfit-Recommender
 ```
 
-### 2. Replace the needed values
+### 2. Install the required dependencies
+
+- Install the required dependencies listed in the Tech Stack above
+
+### 3. Replace the needed values
 
 - Replace the *city* variable with the name of your City
 - Replace the *unit* variable with your desired unit
@@ -66,8 +70,9 @@ cd Weather-Outfit-Recommender
 ### 3. Run the app
 
 ```bash
-python weather.py
+python app.py
 ```
+- After running, visit the URL displayed in your terminal to see the web app.
 
 ---
 
