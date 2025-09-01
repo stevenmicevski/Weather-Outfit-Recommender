@@ -10,24 +10,16 @@ unit = "metric"
 api_key = "your_API_key"
 url = f"https://api.openweathermap.org/data/2.5/forecast?q={city}&units={unit}&appid={api_key}"
 
-
+# Fetch weather forecast from OpenWeatherMap API and store it in 'weather_data.json'.
 def fetch_data_from_api():
-    """
-    Fetch weather forecast from OpenWeatherMap API
-    and store it in 'weather_data.json'.
-    Returns JSON data as a dictionary.
-    """
     response = requests.get(url)
     data = response.json()
     with open("weather_data.json", "w") as file:
         json.dump(data, file, indent=4)
     return data
 
-
+# Read weather data from 'weather_data.json' and store it in the database.
 def store_data_in_db():
-    """
-    Read weather data from 'weather_data.json' and store it in the database.
-    """
     with open("weather_data.json", "r") as file:
         data = json.load(file)
 
@@ -45,14 +37,10 @@ def store_data_in_db():
 
 
 def get_data_from_db():
-    """Retrieve all rows from the database."""
     return database.show_weather_data()
 
 
 def get_values_from_data():
-    """
-    Convert database rows into a list of dictionaries with all the values.
-    """
     rows = get_data_from_db()
     all_daily_values = []
 
@@ -86,7 +74,6 @@ def get_values_from_data():
 
 
 def get_temperature_suggestions(temp, feels):
-    """Return temperature suggestion."""
     if temp < 0:
         return f"<span class='text-badge freezing'>❄️ It’s freezing outside — Feels like {feels}°C.</span>"
     elif temp < 10:
@@ -102,7 +89,6 @@ def get_temperature_suggestions(temp, feels):
 
 
 def get_rain_suggestions(rain):
-    """Return rain suggestion."""
     if rain > 0:
         if rain < 0.1:
             return "<span class='text-badge rain-none'>🌤️ Almost no rain expected. You’re good to go!</span>"
@@ -118,7 +104,6 @@ def get_rain_suggestions(rain):
 
 
 def get_humidity_suggestions(humidity):
-    """Return humidity suggestion."""
     if humidity < 30:
         return "<span class='text-badge humidity-low'>🌵 Very dry air — stay hydrated.</span>"
     elif humidity < 50:
@@ -132,7 +117,6 @@ def get_humidity_suggestions(humidity):
 
 
 def get_condition_suggestions(condition):
-    """Return condition suggestion."""
     if condition in ["Clear", "Sunny"]:
         return "<span class='text-badge clear'>☀️ Clear skies today — perfect for outdoor activities!</span>"
     elif condition in ["Clouds", "Cloudy", "Overcast"]:
@@ -148,7 +132,6 @@ def get_condition_suggestions(condition):
 
 
 def get_advice_suggestions(feels, rain, humidity, condition):
-    """Return a list of outfit recommendations based on all weather attributes."""
     advice = []
 
     # Tops
@@ -192,7 +175,7 @@ def get_advice_suggestions(feels, rain, humidity, condition):
     # Wrap each item in a "badge" style for HTML
     return " ".join([f"<span class='text-badge'>{item}</span>" for item in advice])
 
-
+# Combine all attribute suggestions into a list of dictionaries for each row.
 def get_all_suggestions():
     """Combine all attribute suggestions into a list of dictionaries for each row."""
     rows = get_data_from_db()
@@ -217,7 +200,6 @@ def get_all_suggestions():
 
 
 # Extra function for sending weather notifications on Desktop:
-
 # def send_notification_on_desktop(): 
     # notification.notify(title="🌤️ Weather & Outfit Advice", message=give_suggestions()) 
 
