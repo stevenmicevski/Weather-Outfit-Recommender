@@ -14,11 +14,7 @@
         <p>“Stay stylish no matter what the forecast says.”</p>
     </div>
 
-    <!-- Creating hour buttons in a loop. 
-    Each button has its own index
-    when clicked it calls the script/function we made at the bottom, show cards().
-    when clicked the html/page runs this script with that number as an argument (the number of the button).
-    -->
+    <!-- Creating hour buttons -->
     <div class="hour-button">
         {% for i in range(combined|length) %}
             <button onclick="show_cards({{ i }})">
@@ -86,7 +82,7 @@
     </div>
 {% endfor %}
 
-<!-- Creating buttons for unit toggling -->
+    <!-- Creating buttons for unit toggling -->
     <div class="unit-button">
         <button onclick="change_unit('C', this)">
                 °C
@@ -97,26 +93,7 @@
     </div>
 
 
-
-<!--    
-Declares a named function show_hour so you can call it from an HTML.
-It takes one parameter, which is the weather-card you want to show.
-Uses the DOM API (The DOM (Document Object Model) is basically a tree structure of your HTML page) to select 
-all elements in the page with the class .weather-card-container-container.
-Returns a static NodeList, array-like list of elements in document (top to bottom, left to right in your HTML source) 
-order.
-(e.g. [
-  <div class="hour-block">First</div>,
-  <div class="hour-block">Second</div>,
-  <div class="hour-block">Third</div>
-])
-Iterates over every element in that blocks NodeList.
-block = the actual element (e.g. <div class=".weather-card-container-container">First</div>).
-i = the position (index) of that element in the list.
-Is the current block’s position (i) the same as the one I want to show (index)?
-If it is, set the style.display of that container to 'block', show it.
-If not, set it to 'none', dont shwo it.
--->
+    <!-- Script for the hour buttons to show the cards for that specific time when clicked -->
     <script>
         function show_cards(index) {
             const blocks = document.querySelectorAll('.weather-card-container-container');
@@ -139,20 +116,8 @@ If not, set it to 'none', dont shwo it.
         }
     </script>
 
-<!-- 
-Declares a named function change_unit so you can call it from an HTML.
-Takes two parameters, one is the unit we want to change it to and the other is the button thats clicked.
-Each of the two buttos when clicked calls this function with different unit.
-It selects all elements in the page with the class .temperature-value.
-Gets the value with element.dataset.celsius via data-celsius in the HTML.
-If the fucntion is called with C, it changes the text of that element with `${celsius}°C`, via textContent.
-If the fucntion is called with F, it changes the text of that element with `${fahrenheit}°C`, via textContent.
 
-It selects all elements in the page with the class .unit-button button.
-It removes the 'active' class to every other button, makes it inactive.
-It sets the class to 'active' on the button thats clicked.
--->
-    
+    <!-- Script for the unit buttons to show the values in that unit on the cards -->
     <script>
         function change_unit(unit, clickedBtn) {
             const tempelements = document.querySelectorAll(".temperature-value");

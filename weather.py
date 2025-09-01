@@ -177,7 +177,6 @@ def get_advice_suggestions(feels, rain, humidity, condition):
 
 # Combine all attribute suggestions into a list of dictionaries for each row.
 def get_all_suggestions():
-    """Combine all attribute suggestions into a list of dictionaries for each row."""
     rows = get_data_from_db()
     all_daily_suggestions = []
 
